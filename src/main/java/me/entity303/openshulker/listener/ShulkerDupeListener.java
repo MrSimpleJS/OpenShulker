@@ -65,6 +65,8 @@ public class ShulkerDupeListener implements Listener {
 
     @EventHandler(ignoreCancelled = true)
     public void OnCraft(CraftItemEvent event) {
+        if (!(event.getWhoClicked() instanceof Player)) return;
+
         if (!this.HandleEvent(event, (Player) event.getWhoClicked())) return;
 
         event.setResult(Event.Result.DENY);
@@ -138,6 +140,8 @@ public class ShulkerDupeListener implements Listener {
 
     @EventHandler
     public void OnInventoryClick(InventoryClickEvent event) {
+        if (!(event.getWhoClicked() instanceof Player)) return;
+
         int slot = event.getSlot();
 
         if (event.getClickedInventory() == null) return;
@@ -148,11 +152,13 @@ public class ShulkerDupeListener implements Listener {
 
         if (clickedItemStack.getType() == Material.AIR) return;
 
-        if (!this._openShulker.GetShulkerActions().HasOpenShulkerBox((Player) event.getWhoClicked())) return;
+        Player player = (Player) event.getWhoClicked();
+
+        if (!this._openShulker.GetShulkerActions().HasOpenShulkerBox(player)) return;
 
         //Make operator can modify shulkerbox's NBT to reset it, which can solve some strange bugs caused by PersistentDataContainer
         //Like player has closed shulkerbox but the dataContainer still contains player's UUID so that player can't interact with the shulkerbox
-        if (!this._openShulker.GetShulkerActions().IsOpenShulker(clickedItemStack) || event.getWhoClicked().isOp())
+        if (!this._openShulker.GetShulkerActions().IsOpenShulker(clickedItemStack) || player.isOp())
             return;
 
         if (event.isRightClick() && event.isShiftClick()) return;
@@ -162,6 +168,8 @@ public class ShulkerDupeListener implements Listener {
 
     @EventHandler
     public void OnInventoryClick2(InventoryClickEvent event) {
+        if (!(event.getWhoClicked() instanceof Player)) return;
+
         int slot = event.getSlot();
 
         if (event.getClickedInventory() == null) return;
@@ -172,7 +180,9 @@ public class ShulkerDupeListener implements Listener {
 
         if (clickedItemStack.getType() == Material.AIR) return;
 
-        if (this._openShulker.GetShulkerActions().HasOpenShulkerBox((Player) event.getWhoClicked())) return;
+        Player player = (Player) event.getWhoClicked();
+
+        if (this._openShulker.GetShulkerActions().HasOpenShulkerBox(player)) return;
 
         if (!this._openShulker.GetShulkerActions().IsOpenShulker(clickedItemStack)) return;
 

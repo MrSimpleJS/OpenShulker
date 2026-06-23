@@ -82,7 +82,7 @@ public final class OpenShulker extends JavaPlugin implements Listener {
         } catch (Throwable ignored) {
             if (closeSound == null) {
                 Bukkit.getLogger().severe("You did not specify CloseSound, using default");
-                this.getConfig().set("OpenSound", "BLOCK_SHULKER_BOX_CLOSE");
+                this.getConfig().set("CloseSound", "BLOCK_SHULKER_BOX_CLOSE");
                 this.saveConfig();
                 this.reloadConfig();
             } else Bukkit.getLogger()

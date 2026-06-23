@@ -76,6 +76,7 @@ public class ShulkerActions {
         if (itemStack == null) {
             Bukkit.getLogger().severe("Player " + player.getName() + " (" + player.getUniqueId() + ") may have duped!");
             Bukkit.getLogger().severe("Currently viewing a shulker while not having an opened shulker!");
+            this.ClearPlayerOpenShulkerState(player);
             return false;
         }
 
@@ -89,6 +90,8 @@ public class ShulkerActions {
 
         if (dataContainer.has(this._openShulkerLocationKey, PersistentDataType.STRING)) {
             Container container = this.GetShulkerHoldingContainer(player);
+
+            if (container == null) return null;
 
             return this.SearchShulkerBox(container.getInventory(), player);
         }
@@ -124,13 +127,25 @@ public class ShulkerActions {
         if (!dataContainer.has(this._openShulkerLocationKey, PersistentDataType.STRING)) return null;
 
         String locationString = dataContainer.get(this._openShulkerLocationKey, PersistentDataType.STRING);
-        String[] locationStringArray = locationString.split(";");
+        if (locationString == null) return null;
 
-        double xCoordinate = Double.parseDouble(locationStringArray[0]);
-        double yCoordinate = Double.parseDouble(locationStringArray[1]);
-        double zCoordinate = Double.parseDouble(locationStringArray[2]);
+        String[] locationStringArray = locationString.split(";");
+        if (locationStringArray.length != 4) return null;
+
+        double xCoordinate;
+        double yCoordinate;
+        double zCoordinate;
+
+        try {
+            xCoordinate = Double.parseDouble(locationStringArray[0]);
+            yCoordinate = Double.parseDouble(locationStringArray[1]);
+            zCoordinate = Double.parseDouble(locationStringArray[2]);
+        } catch (NumberFormatException ignored) {
+            return null;
+        }
 
         World world = Bukkit.getWorld(locationStringArray[3]);
+        if (world == null) return null;
 
         Location location = new Location(world, xCoordinate, yCoordinate, zCoordinate);
 
@@ -158,6 +173,8 @@ public class ShulkerActions {
     }
 
     public boolean IsOpenShulker(ItemStack itemStack, Player player) {
+        if (itemStack == null) return false;
+
         ItemMeta meta = itemStack.getItemMeta();
 
         if (!(itemStack.getItemMeta() instanceof BlockStateMeta)) return false;
@@ -202,6 +219,8 @@ public class ShulkerActions {
 
         if (shulkerBoxStack.getAmount() != 1) return false;
 
+        if (this.IsOpenShulker(shulkerBoxStack)) return false;
+
         if (!(shulkerBoxStack.getItemMeta() instanceof BlockStateMeta)) return false;
 
         BlockStateMeta blockStateMeta = (BlockStateMeta) shulkerBoxStack.getItemMeta();
@@ -234,6 +253,8 @@ public class ShulkerActions {
 
     public boolean AttemptToOpenShulkerBox(Player player, ItemStack itemStack) {
         if (!player.hasPermission("openshulker.use")) return false;
+
+        if (itemStack == null) return false;
 
         if (itemStack.getAmount() <= 0) return false;
 
@@ -269,6 +290,16 @@ public class ShulkerActions {
         if (this._openShulker._hookChestSort) ChestSortHook.SetUnsortable(inventory);
 
         Bukkit.getScheduler().runTaskLater(this._openShulker, () -> {
+            if (!player.isOnline()) {
+                this.ClearOpenShulkerState(itemStack, player);
+                return;
+            }
+
+            if (!this.HasOpenShulkerBox(player)) {
+                this.ClearOpenShulkerState(itemStack, player);
+                return;
+            }
+
             inventory.setContents(shulker.getInventory().getContents());
 
             player.openInventory(inventory);
@@ -283,7 +314,26 @@ public class ShulkerActions {
         return true;
     }
 
+    private void ClearOpenShulkerState(ItemStack itemStack, Player player) {
+        if (itemStack != null && itemStack.getItemMeta() instanceof BlockStateMeta) {
+            ItemMeta meta = itemStack.getItemMeta();
+            meta.getPersistentDataContainer().remove(this._openShulkerKey);
+            itemStack.setItemMeta(meta);
+        }
+
+        this.ClearPlayerOpenShulkerState(player);
+    }
+
+    private void ClearPlayerOpenShulkerState(Player player) {
+        PersistentDataContainer container = player.getPersistentDataContainer();
+
+        container.remove(this._openShulkerKey);
+        container.remove(this._openShulkerLocationKey);
+    }
+
     public boolean AttemptToOpenShulkerBox(Player player, ItemStack itemStack, Location chest) {
+        if (chest == null || chest.getWorld() == null) return false;
+
         Block block = chest.getBlock();
 
         if (!(block.getState() instanceof Container)) return false;

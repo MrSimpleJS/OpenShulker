@@ -11,7 +11,7 @@ Hooks:
   WorldGuard: true
 Messages:
   Prefix: "&8[&2OpenShulker&8] &7"
-  CannotBreakContainer: "§cYou cannot break this container, since there's an opened shulker in it"
+  CannotBreakContainer: "&cYou cannot break this container, since there's an opened shulker in it"
   OpenShulkerCommand:
     Syntax: "&cSyntax: &4/<LABEL> <Reload>"
     Reloaded: "The plugin was reloaded!"
