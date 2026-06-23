@@ -18,6 +18,8 @@ public final class OpenShulker extends JavaPlugin implements Listener {
     public boolean _allowContainerOpen = true;
     public boolean _allowEnderChestOpen = true;
     public boolean _allowHandOpen = true;
+    public boolean _hookChestSort = true;
+    public boolean _hookWorldGuard = true;
     private ShulkerActions _shulkerActions;
 
     @Override
@@ -92,6 +94,8 @@ public final class OpenShulker extends JavaPlugin implements Listener {
         this._allowContainerOpen = this.getConfig().getBoolean("OpenMethods.AllowContainerOpen");
         this._allowEnderChestOpen = this.getConfig().getBoolean("OpenMethods.AllowEnderChestOpen");
         this._allowHandOpen = this.getConfig().getBoolean("OpenMethods.AllowHandOpen");
+        this._hookChestSort = this.getConfig().getBoolean("Hooks.ChestSort", true);
+        this._hookWorldGuard = this.getConfig().getBoolean("Hooks.WorldGuard", true);
     }
 
     public ShulkerActions GetShulkerActions() {

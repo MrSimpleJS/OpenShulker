@@ -1,6 +1,7 @@
 package me.entity303.openshulker.util;
 
 import me.entity303.openshulker.OpenShulker;
+import me.entity303.openshulker.hooks.ChestSortHook;
 import org.bukkit.*;
 import org.bukkit.block.Block;
 import org.bukkit.block.Container;
@@ -13,6 +14,9 @@ import org.bukkit.inventory.meta.BlockStateMeta;
 import org.bukkit.inventory.meta.ItemMeta;
 import org.bukkit.persistence.PersistentDataContainer;
 import org.bukkit.persistence.PersistentDataType;
+
+import java.util.HashMap;
+import java.util.Map;
 
 public class ShulkerActions {
     private final NamespacedKey _openShulkerKey;
@@ -49,7 +53,7 @@ public class ShulkerActions {
         container.remove(this._openShulkerLocationKey);
 
         try {
-            player.playSound(player, Sound.valueOf(this._openShulker.getConfig().getString("CloseSound")), 1F, 1F);
+            player.playSound(player.getLocation(), Sound.valueOf(this._openShulker.getConfig().getString("CloseSound")), 1F, 1F);
         } catch (Throwable ignored) {
             //Ignore the exception, it's probably just a message about not being able to find the correct sound
             //We have an info message in OpenShulker#onEnable for this
@@ -177,6 +181,51 @@ public class ShulkerActions {
         return this.IsOpenShulker(itemStack, null);
     }
 
+    public boolean IsShulkerBox(ItemStack itemStack) {
+        if (itemStack == null) return false;
+
+        if (itemStack.getType() == Material.AIR) return false;
+
+        return itemStack.getType().name().contains(Material.SHULKER_BOX.name());
+    }
+
+    public boolean CanInputIntoShulkerBox(Player player, ItemStack shulkerBoxStack, ItemStack itemStack) {
+        if (!player.hasPermission("openshulker.write")) return false;
+
+        if (!this.IsShulkerBox(shulkerBoxStack)) return false;
+
+        if (itemStack == null) return false;
+
+        if (itemStack.getType() == Material.AIR) return false;
+
+        if (this.IsShulkerBox(itemStack)) return false;
+
+        if (shulkerBoxStack.getAmount() != 1) return false;
+
+        if (!(shulkerBoxStack.getItemMeta() instanceof BlockStateMeta)) return false;
+
+        BlockStateMeta blockStateMeta = (BlockStateMeta) shulkerBoxStack.getItemMeta();
+
+        return blockStateMeta.getBlockState() instanceof ShulkerBox;
+    }
+
+    public ItemStack InputItemIntoShulkerBox(ItemStack shulkerBoxStack, ItemStack itemStack) {
+        BlockStateMeta blockStateMeta = (BlockStateMeta) shulkerBoxStack.getItemMeta();
+        ShulkerBox shulkerBox = (ShulkerBox) blockStateMeta.getBlockState();
+        Inventory inventory = shulkerBox.getInventory();
+
+        HashMap<Integer, ItemStack> leftovers = inventory.addItem(itemStack.clone());
+
+        blockStateMeta.setBlockState(shulkerBox);
+        shulkerBoxStack.setItemMeta(blockStateMeta);
+
+        if (leftovers.isEmpty()) return null;
+
+        for (Map.Entry<Integer, ItemStack> entry : leftovers.entrySet()) return entry.getValue();
+
+        return null;
+    }
+
     public boolean AttemptToOpenShulkerBox(Player player) {
         ItemStack itemStack = player.getInventory().getItemInMainHand();
 
@@ -214,9 +263,11 @@ public class ShulkerActions {
 
         container.set(this._openShulkerKey, PersistentDataType.STRING, player.getUniqueId().toString());
 
-        Inventory inventory = Bukkit.createInventory(null, InventoryType.SHULKER_BOX);
+        String inventoryTitle = meta.hasDisplayName() ? meta.getDisplayName() : null;
+        Inventory inventory = inventoryTitle == null ? Bukkit.createInventory(null, InventoryType.SHULKER_BOX) : Bukkit.createInventory(null, InventoryType.SHULKER_BOX, inventoryTitle);
 
-        PersistentDataContainer playerContainer = player.getPersistentDataContainer();
+        if (this._openShulker._hookChestSort) ChestSortHook.SetUnsortable(inventory);
+
         Bukkit.getScheduler().runTaskLater(this._openShulker, () -> {
             inventory.setContents(shulker.getInventory().getContents());
 
@@ -224,7 +275,7 @@ public class ShulkerActions {
         }, this._openShulker.getConfig().getLong("WaitSecondsBeforeOpen", 0) * 20);
 
         try {
-            player.playSound(player, Sound.valueOf(this._openShulker.getConfig().getString("OpenSound")), 1F, 1F);
+            player.playSound(player.getLocation(), Sound.valueOf(this._openShulker.getConfig().getString("OpenSound")), 1F, 1F);
         } catch (Throwable ignored) {
             //Ignore the exception, it's probably just a message about not being able to find the correct sound
             //We have an info message in OpenShulker#onEnable for this

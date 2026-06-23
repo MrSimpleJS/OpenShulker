@@ -6,6 +6,9 @@ OpenMethods:
 WaitSecondsBeforeOpen: 0
 OpenSound: "BLOCK_SHULKER_BOX_OPEN"
 CloseSound: "BLOCK_SHULKER_BOX_CLOSE"
+Hooks:
+  ChestSort: true
+  WorldGuard: true
 Messages:
   Prefix: "&8[&2OpenShulker&8] &7"
   CannotBreakContainer: "§cYou cannot break this container, since there's an opened shulker in it"

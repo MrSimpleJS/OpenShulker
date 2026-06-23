@@ -3,6 +3,7 @@ version: '${project.version}'
 main: me.entity303.openshulker.OpenShulker
 api-version: 1.14
 authors: [Entity303]
+softdepend: [ChestSort, WorldGuard]
 commands:
   openshulker:
     permission: "openshulker.admin"

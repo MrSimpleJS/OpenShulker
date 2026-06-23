@@ -1,6 +1,6 @@
 # OpenShulker
 
-OpenShulker is a plugin for 1.14 to 1.20.1 that makes Shulkerboxes more useful.
+OpenShulker is a plugin for 1.14 to 26.2 that makes Shulkerboxes more useful.
 
 You can open a Shulker by Shift-Rightclicking it in your hand or Inventory.
 
@@ -21,6 +21,9 @@ You can download it on spigotmc: [OpenShulker](https://www.spigotmc.org/resource
 OpenSound: "BLOCK_SHULKER_BOX_OPEN"
 # Sound for closing a Shulker
 CloseSound: "BLOCK_SHULKER_BOX_CLOSE"
+Hooks:
+  ChestSort: true
+  WorldGuard: true
 Messages:
   Prefix: "&8[&2OpenShulker&8] &7"
   CannotBreakContainer: "§cYou cannot break this container, since there's an opened shulker in it"
@@ -47,7 +50,4 @@ Github: [Issues Page](https://github.com/Test-Account666/OpenShulker/issues)
 
 # Todo
 
-- Add ability to input items by right clicking an item on/with a shulker box
-- Add ChestSort Hook
-- Add WorldGuard Hook
 - Add update checker
