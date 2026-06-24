@@ -2,6 +2,7 @@ name: OpenShulker
 version: '${project.version}'
 main: me.entity303.openshulker.OpenShulker
 api-version: 1.14
+folia-supported: true
 authors: [Entity303]
 softdepend: [ChestSort, WorldGuard]
 commands:

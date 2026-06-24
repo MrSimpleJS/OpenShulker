@@ -2,7 +2,7 @@ package me.entity303.openshulker.listener;
 
 import me.entity303.openshulker.OpenShulker;
 import me.entity303.openshulker.hooks.WorldGuardHook;
-import org.bukkit.Bukkit;
+import me.entity303.openshulker.util.SchedulerUtil;
 import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.block.Container;
@@ -70,10 +70,24 @@ public class ShulkerOpenCloseListener implements Listener {
 
         if (!event.isShiftClick()) return;
 
+        if (event.getCursor() != null && event.getCursor().getType() != Material.AIR) return;
+
         if (event.getClickedInventory() == event.getWhoClicked().getInventory()) {
             if (!this._openShulker._allowInventoryOpen) return;
 
             if (event.getView().getTopInventory().getType() == InventoryType.SHULKER_BOX) {
+                if (this._openShulker.GetShulkerActions().IsOpenShulker(clickedItemStack, player)) {
+                    boolean enderChest = this._openShulker.GetShulkerActions().HasOpenShulkerInEnderChest(player);
+
+                    Container container = this._openShulker.GetShulkerActions().GetShulkerHoldingContainer(player);
+
+                    this._openShulker.GetShulkerActions().SaveShulkerBox(clickedItemStack, event.getView().getTopInventory(), player);
+
+                    event.setCancelled(true);
+                    this.ReopenInventory(enderChest, container, player);
+                    return;
+                }
+
                 if (this._openShulker.GetShulkerActions().HasOpenShulkerBox(player)) {
                     ItemStack shulkerBox = this._openShulker.GetShulkerActions().SearchShulkerBox(player);
 
@@ -192,7 +206,7 @@ public class ShulkerOpenCloseListener implements Listener {
     private void ReopenInventory(boolean enderChest, Container container, HumanEntity player) {
         player.closeInventory();
 
-        Bukkit.getScheduler().runTaskLater(this._openShulker, () -> {
+        SchedulerUtil.RunEntityLater(this._openShulker, player, () -> {
             if (container != null) {
                 if (container.getWorld() != player.getWorld()) return;
 
@@ -202,9 +216,9 @@ public class ShulkerOpenCloseListener implements Listener {
                 return;
             }
 
-            if (!enderChest) return;
-
-            player.openInventory(player.getEnderChest());
+            if (enderChest) {
+                player.openInventory(player.getEnderChest());
+            }
         }, 1L);
     }
 

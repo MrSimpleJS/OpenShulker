@@ -289,7 +289,7 @@ public class ShulkerActions {
 
         if (this._openShulker._hookChestSort) ChestSortHook.SetUnsortable(inventory);
 
-        Bukkit.getScheduler().runTaskLater(this._openShulker, () -> {
+        SchedulerUtil.RunEntityLater(this._openShulker, player, () -> {
             if (!player.isOnline()) {
                 this.ClearOpenShulkerState(itemStack, player);
                 return;
