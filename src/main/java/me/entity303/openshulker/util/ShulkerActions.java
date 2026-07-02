@@ -287,7 +287,7 @@ public class ShulkerActions {
         String inventoryTitle = meta.hasDisplayName() ? meta.getDisplayName() : null;
         Inventory inventory = inventoryTitle == null ? Bukkit.createInventory(null, InventoryType.SHULKER_BOX) : Bukkit.createInventory(null, InventoryType.SHULKER_BOX, inventoryTitle);
 
-        if (this._openShulker._hookChestSort) ChestSortHook.SetUnsortable(inventory);
+        if (this._openShulker._hookChestSort) ChestSortHook.SetUnsortable(inventory, this._openShulker._debugChestSort);
 
         SchedulerUtil.RunEntityLater(this._openShulker, player, () -> {
             if (!player.isOnline()) {
@@ -303,6 +303,9 @@ public class ShulkerActions {
             inventory.setContents(shulker.getInventory().getContents());
 
             player.openInventory(inventory);
+            if (this._openShulker._hookChestSort) {
+                ChestSortHook.SetUnsortable(player.getOpenInventory().getTopInventory(), this._openShulker._debugChestSort);
+            }
         }, this._openShulker.getConfig().getLong("WaitSecondsBeforeOpen", 0) * 20);
 
         try {

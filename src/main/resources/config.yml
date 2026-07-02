@@ -7,11 +7,34 @@ WaitSecondsBeforeOpen: 0
 OpenSound: "BLOCK_SHULKER_BOX_OPEN"
 CloseSound: "BLOCK_SHULKER_BOX_CLOSE"
 Hooks:
+  # If ChestSort is installed and this is true, opened shulker inventories are marked as unsortable.
   ChestSort: true
+  # If true, OpenShulker logs a warning when ChestSort is installed but its API could not be used.
+  ChestSortDebug: false
+  # If WorldGuard is installed and this is true, shulkers inside protected containers can only be used where the player has container access.
+  # OpenShulker checks the WorldGuard flags chest-access and interact.
+  #
+  # WorldGuard ingame setup:
+  # 1. Select/create your region as usual.
+  # 2. Allow players to use shulkers in containers in that region:
+  #    /rg flag <region> chest-access allow
+  #    /rg flag <region> interact allow
+  # 3. Block players from changing shulkers in protected containers:
+  #    /rg flag <region> chest-access deny
+  #    /rg flag <region> interact deny
+  # 4. For the global region, use:
+  #    /rg flag __global__ chest-access deny
+  #    /rg flag __global__ interact deny
+  # 5. After changing this config value, reload OpenShulker:
+  #    /openshulker reload
+  #    /openshulker hooks
   WorldGuard: true
+# Ingame admin commands:
+# /openshulker reload - reloads this config
+# /openshulker hooks - shows if ChestSort/WorldGuard hooks are enabled and loaded
 Messages:
   Prefix: "&8[&2OpenShulker&8] &7"
   CannotBreakContainer: "&cYou cannot break this container, since there's an opened shulker in it"
   OpenShulkerCommand:
-    Syntax: "&cSyntax: &4/<LABEL> <Reload>"
+    Syntax: "&cSyntax: &4/<LABEL> <Reload|Hooks>"
     Reloaded: "The plugin was reloaded!"

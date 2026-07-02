@@ -22,13 +22,18 @@ OpenSound: "BLOCK_SHULKER_BOX_OPEN"
 # Sound for closing a Shulker
 CloseSound: "BLOCK_SHULKER_BOX_CLOSE"
 Hooks:
+  # If ChestSort is installed and this is true, opened shulker inventories are marked as unsortable.
   ChestSort: true
+  # If WorldGuard is installed and this is true, shulkers inside protected containers can only be used where the player has container access.
   WorldGuard: true
+# Ingame admin commands:
+# /openshulker reload - reloads this config
+# /openshulker hooks - shows if ChestSort/WorldGuard hooks are enabled and loaded
 Messages:
   Prefix: "&8[&2OpenShulker&8] &7"
-  CannotBreakContainer: "§cYou cannot break this container, since there's an opened shulker in it"
+  CannotBreakContainer: "&cYou cannot break this container, since there's an opened shulker in it"
   OpenShulkerCommand:
-    Syntax: "&cSyntax: &4/<LABEL> <Reload>"
+    Syntax: "&cSyntax: &4/<LABEL> <Reload|Hooks>"
     Reloaded: "The plugin was reloaded!"
 ```
 
@@ -41,6 +46,7 @@ Messages:
 # Commands
 
 - `openshulker reload`
+- `openshulker hooks`
 
 # Support
 

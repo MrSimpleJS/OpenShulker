@@ -1,6 +1,7 @@
 package me.entity303.openshulker;
 
 import me.entity303.openshulker.commands.OpenShulkerCommand;
+import me.entity303.openshulker.hooks.ChestSortHook;
 import me.entity303.openshulker.listener.ShulkerDupeListener;
 import me.entity303.openshulker.listener.ShulkerOpenCloseListener;
 import me.entity303.openshulker.listener.ShulkerReadOnlyListener;
@@ -19,6 +20,7 @@ public final class OpenShulker extends JavaPlugin implements Listener {
     public boolean _allowEnderChestOpen = true;
     public boolean _allowHandOpen = true;
     public boolean _hookChestSort = true;
+    public boolean _debugChestSort = false;
     public boolean _hookWorldGuard = true;
     private ShulkerActions _shulkerActions;
 
@@ -53,12 +55,16 @@ public final class OpenShulker extends JavaPlugin implements Listener {
 
         command.setExecutor(openShulkerCommand);
         command.setTabCompleter(openShulkerCommand);
+
+        this.LogHookStatus();
     }
 
     public void InitializeConfig() {
         this.saveDefaultConfig();
 
         this.reloadConfig();
+
+        this.AddConfigDefaults();
 
         String openSound = this.getConfig().getString("OpenSound");
 
@@ -95,7 +101,55 @@ public final class OpenShulker extends JavaPlugin implements Listener {
         this._allowEnderChestOpen = this.getConfig().getBoolean("OpenMethods.AllowEnderChestOpen");
         this._allowHandOpen = this.getConfig().getBoolean("OpenMethods.AllowHandOpen");
         this._hookChestSort = this.getConfig().getBoolean("Hooks.ChestSort", true);
+        this._debugChestSort = this.getConfig().getBoolean("Hooks.ChestSortDebug", false);
         this._hookWorldGuard = this.getConfig().getBoolean("Hooks.WorldGuard", true);
+    }
+
+    private void AddConfigDefaults() {
+        boolean changed = false;
+
+        changed |= this.AddConfigDefault("OpenMethods.AllowInventoryOpen", true);
+        changed |= this.AddConfigDefault("OpenMethods.AllowContainerOpen", true);
+        changed |= this.AddConfigDefault("OpenMethods.AllowEnderChestOpen", true);
+        changed |= this.AddConfigDefault("OpenMethods.AllowHandOpen", true);
+        changed |= this.AddConfigDefault("WaitSecondsBeforeOpen", 0);
+        changed |= this.AddConfigDefault("OpenSound", "BLOCK_SHULKER_BOX_OPEN");
+        changed |= this.AddConfigDefault("CloseSound", "BLOCK_SHULKER_BOX_CLOSE");
+        changed |= this.AddConfigDefault("Hooks.ChestSort", true);
+        changed |= this.AddConfigDefault("Hooks.ChestSortDebug", false);
+        changed |= this.AddConfigDefault("Hooks.WorldGuard", true);
+        changed |= this.AddConfigDefault("Messages.Prefix", "&8[&2OpenShulker&8] &7");
+        changed |= this.AddConfigDefault("Messages.CannotBreakContainer", "&cYou cannot break this container, since there's an opened shulker in it");
+        changed |= this.AddConfigDefault("Messages.OpenShulkerCommand.Syntax", "&cSyntax: &4/<LABEL> <Reload|Hooks>");
+        changed |= this.AddConfigDefault("Messages.OpenShulkerCommand.Reloaded", "The plugin was reloaded!");
+
+        if (!changed) return;
+
+        this.getConfig().options().copyDefaults(true);
+        this.saveConfig();
+        this.reloadConfig();
+    }
+
+    private boolean AddConfigDefault(String path, Object value) {
+        boolean missing = !this.getConfig().isSet(path);
+        this.getConfig().addDefault(path, value);
+        return missing;
+    }
+
+    private void LogHookStatus() {
+        this.getLogger().info("ChestSort hook: " + this.FormatHookStatus(this._hookChestSort, ChestSortHook.IsLoaded()));
+        this.getLogger().info("WorldGuard hook: " +
+                              this.FormatHookStatus(this._hookWorldGuard, Bukkit.getPluginManager().getPlugin("WorldGuard") != null));
+
+        if (this._hookChestSort && this._debugChestSort && ChestSortHook.IsLoaded() && !ChestSortHook.IsApiAvailable()) {
+            this.getLogger().warning("ChestSort is loaded, but OpenShulker could not find a supported ChestSortAPI#setUnsortable method.");
+        }
+    }
+
+    private String FormatHookStatus(boolean enabledInConfig, boolean pluginLoaded) {
+        if (!enabledInConfig) return "disabled in config";
+        if (!pluginLoaded) return "enabled in config, plugin not loaded";
+        return "enabled and plugin loaded";
     }
 
     public ShulkerActions GetShulkerActions() {

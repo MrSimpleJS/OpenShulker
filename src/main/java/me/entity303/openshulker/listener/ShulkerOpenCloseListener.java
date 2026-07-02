@@ -1,6 +1,7 @@
 package me.entity303.openshulker.listener;
 
 import me.entity303.openshulker.OpenShulker;
+import me.entity303.openshulker.hooks.ChestSortHook;
 import me.entity303.openshulker.hooks.WorldGuardHook;
 import me.entity303.openshulker.util.SchedulerUtil;
 import org.bukkit.Location;
@@ -122,7 +123,10 @@ public class ShulkerOpenCloseListener implements Listener {
 
         if (location == null) return;
 
-        if (!this.CanUseInventoryLocation(player, location)) return;
+        if (!this.CanUseInventoryLocation(player, location)) {
+            event.setCancelled(true);
+            return;
+        }
 
         boolean open = this._openShulker.GetShulkerActions().AttemptToOpenShulkerBox(player, clickedItemStack, location);
 
@@ -141,7 +145,10 @@ public class ShulkerOpenCloseListener implements Listener {
 
         Location location = event.getClickedInventory().getLocation();
 
-        if (!this.CanUseInventoryLocation(player, location)) return false;
+        if (!this.CanUseInventoryLocation(player, location)) {
+            event.setCancelled(true);
+            return true;
+        }
 
         if (this._openShulker.GetShulkerActions().CanInputIntoShulkerBox(player, clickedItemStack, cursorItemStack)) {
             ItemStack leftover = this._openShulker.GetShulkerActions().InputItemIntoShulkerBox(clickedItemStack, cursorItemStack);
@@ -170,7 +177,7 @@ public class ShulkerOpenCloseListener implements Listener {
         if (location == null) return true;
 
         try {
-            return WorldGuardHook.CanBuild(player, location);
+            return WorldGuardHook.CanAccessContainer(player, location);
         } catch (Throwable ignored) {
             return true;
         }
@@ -213,6 +220,9 @@ public class ShulkerOpenCloseListener implements Listener {
                 if (container.getLocation().distance(player.getLocation()) > 4) return;
 
                 player.openInventory(container.getInventory());
+                if (this._openShulker._hookChestSort) {
+                    ChestSortHook.SetUnsortable(player.getOpenInventory().getTopInventory(), this._openShulker._debugChestSort);
+                }
                 return;
             }
 

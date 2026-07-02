@@ -15,7 +15,7 @@ public final class WorldGuardHook {
     private WorldGuardHook() {
     }
 
-    public static boolean CanBuild(Player player, Location location) {
+    public static boolean CanAccessContainer(Player player, Location location) {
         if (Bukkit.getPluginManager().getPlugin("WorldGuard") == null) return true;
         if (location == null || location.getWorld() == null) return true;
 
@@ -29,7 +29,7 @@ public final class WorldGuardHook {
             RegionContainer container = WorldGuard.getInstance().getPlatform().getRegionContainer();
             RegionQuery query = container.createQuery();
 
-            return query.testState(BukkitAdapter.adapt(location), localPlayer, Flags.BUILD);
+            return query.testState(BukkitAdapter.adapt(location), localPlayer, Flags.CHEST_ACCESS, Flags.INTERACT);
         } catch (Throwable ignored) {
             return true;
         }
