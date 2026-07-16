@@ -143,14 +143,20 @@ public class ShulkerOpenCloseListener implements Listener {
 
         if (cursorItemStack.getType() == Material.AIR) return false;
 
-        Location location = event.getClickedInventory().getLocation();
+        boolean inputCursorIntoClicked = this._openShulker.GetShulkerActions()
+                                                          .CanInputIntoShulkerBox(player, clickedItemStack, cursorItemStack);
+        boolean inputClickedIntoCursor = this._openShulker.GetShulkerActions()
+                                                          .CanInputIntoShulkerBox(player, cursorItemStack, clickedItemStack);
 
+        if (!inputCursorIntoClicked && !inputClickedIntoCursor) return false;
+
+        Location location = event.getClickedInventory().getLocation();
         if (!this.CanUseInventoryLocation(player, location)) {
             event.setCancelled(true);
             return true;
         }
 
-        if (this._openShulker.GetShulkerActions().CanInputIntoShulkerBox(player, clickedItemStack, cursorItemStack)) {
+        if (inputCursorIntoClicked) {
             ItemStack leftover = this._openShulker.GetShulkerActions().InputItemIntoShulkerBox(clickedItemStack, cursorItemStack);
 
             event.getClickedInventory().setItem(clickedSlot, clickedItemStack);
@@ -159,7 +165,7 @@ public class ShulkerOpenCloseListener implements Listener {
             return true;
         }
 
-        if (this._openShulker.GetShulkerActions().CanInputIntoShulkerBox(player, cursorItemStack, clickedItemStack)) {
+        if (inputClickedIntoCursor) {
             ItemStack leftover = this._openShulker.GetShulkerActions().InputItemIntoShulkerBox(cursorItemStack, clickedItemStack);
 
             event.setCursor(cursorItemStack);
@@ -190,7 +196,7 @@ public class ShulkerOpenCloseListener implements Listener {
 
         if (potentiallyClickedItem == null) return false;
 
-        return potentiallyClickedItem == clickedItemStack || potentiallyClickedItem.equals(clickedItemStack);
+        return potentiallyClickedItem.isSimilar(clickedItemStack);
     }
 
     @EventHandler(ignoreCancelled = true)

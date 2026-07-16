@@ -67,15 +67,18 @@ public class ShulkerActions {
 
         if (!container.has(this._openShulkerKey, PersistentDataType.STRING)) {
             if (itemStack != null) {
-                Bukkit.getLogger().severe("Player " + player.getName() + " (" + player.getUniqueId() + ") may have duped!");
-                Bukkit.getLogger().severe("Found opened Shulker while not having a shulker open!");
+                this._openShulker.getLogger()
+                                 .warning("Recovered stale open shulker item state for " + player.getName() + " (" +
+                                          player.getUniqueId() + ").");
+                this.ClearOpenShulkerState(itemStack, player);
             }
             return false;
         }
 
         if (itemStack == null) {
-            Bukkit.getLogger().severe("Player " + player.getName() + " (" + player.getUniqueId() + ") may have duped!");
-            Bukkit.getLogger().severe("Currently viewing a shulker while not having an opened shulker!");
+            this._openShulker.getLogger()
+                             .warning("Recovered stale open shulker player state for " + player.getName() + " (" +
+                                      player.getUniqueId() + ").");
             this.ClearPlayerOpenShulkerState(player);
             return false;
         }
@@ -295,7 +298,14 @@ public class ShulkerActions {
                 return;
             }
 
-            if (!this.HasOpenShulkerBox(player)) {
+            ItemStack currentOpenShulker = this.SearchShulkerBox(player);
+
+            if (currentOpenShulker == null || !this.IsOpenShulker(currentOpenShulker, player)) {
+                this.ClearOpenShulkerState(itemStack, player);
+                return;
+            }
+
+            if (currentOpenShulker != itemStack && !currentOpenShulker.equals(itemStack)) {
                 this.ClearOpenShulkerState(itemStack, player);
                 return;
             }

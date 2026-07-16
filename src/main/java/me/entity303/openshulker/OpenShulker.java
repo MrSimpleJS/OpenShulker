@@ -26,6 +26,8 @@ public final class OpenShulker extends JavaPlugin implements Listener {
 
     @Override
     public void onDisable() {
+        if (this._shulkerActions == null) return;
+
         for (Player all : Bukkit.getOnlinePlayers()) {
             if (!this._shulkerActions.HasOpenShulkerBox(all)) continue;
 
